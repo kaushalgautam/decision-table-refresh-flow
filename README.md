@@ -1,18 +1,47 @@
-# Salesforce DX Project: Next Steps
+# Salesforce Decision Table Refresh Flow
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+A Screen Flow that enables on-demand decision table refreshes directly from your Salesforce interface.
 
-## How Do You Plan to Deploy Your Changes?
+## Overview
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+This screen flow provides a convenient way to refresh Salesforce decision tables without navigating through Setup menus. The flow accepts a decision table name as input and offers options for both incremental and full refresh operations, while displaying key metrics about the decision table.
 
-## Configure Your Salesforce DX Project
+![Decision Table Refresh Flow Screenshot - Main Screen](INSERT_SCREENSHOT_HERE)
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+## Features
 
-## Read All About It
+- **Contextual Refreshes**: Embed the flow anywhere in your Salesforce environment - Lightning app pages, record pages, home pages, etc.
+- **Multiple Refresh Options**: Choose between incremental or full refresh operations.
+- **Key Metrics Display**: View important decision table information:
+    - Decision table name
+    - Current refresh status (color-coded)
+    - Last refresh date and time
+    - Last incremental refresh date and time
+- **Quota Monitoring**: Tracks full refreshes performed within the last hour (helping manage the 20 per hour limit)
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+## Installation
+
+1. Deploy the flow XML to your Salesforce org with your tool of choice.
+2. Configure the flow to accept the appropriate decision table developer name.
+3. Add the flow to your desired Lightning pages. You can also use an LWC to wrap it in a button so that it does not launch by default when the page loads (I will release a small wrapper for this soon).
+
+#### Input Variables
+
+| Variable Name              | Data Type | Description                                    |
+| -------------------------- | --------- | ---------------------------------------------- |
+| DecisionTableDeveloperName | String    | DeveloperName of the decision table to refresh |
+
+Security Consideration: The flow runs in System Mode without sharing, so ensure appropriate access controls.
+
+## Limitations
+
+- Full refresh can be used a maximum of 20 times in an hour - this will be indicated in the first screen of the flow.
+- The flow requires appropriate permissions to access decision table metadata.
+
+## Contact
+
+For questions, issues, or enhancement requests, please open an issue and I'll take a look.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

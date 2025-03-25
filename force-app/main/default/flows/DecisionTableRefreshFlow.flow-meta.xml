@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>RefreshDecisionTableAction</name>
+        <label>Refresh Decision Table Action</label>
+        <locationX>176</locationX>
+        <locationY>350</locationY>
+        <actionName>refreshDecisionTable</actionName>
+        <actionType>refreshDecisionTable</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>DecisionTableApiName</name>
+            <value>
+                <elementReference>DecisionTableDeveloperName</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>isDecisionTableIncremental</name>
+            <value>
+                <elementReference>IsRefreshIncremental</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>refreshDecisionTable</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <choices>
+        <name>Full_Refresh</name>
+        <choiceText>Full Refresh</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Full Refresh</stringValue>
+        </value>
+    </choices>
+    <choices>
+        <name>Incremental_Refresh</name>
+        <choiceText>Incremental Refresh</choiceText>
+        <dataType>String</dataType>
+        <value>
+            <stringValue>Incremental Refresh</stringValue>
+        </value>
+    </choices>
+    <customProperties>
+        <name>ScreenProgressIndicator</name>
+        <value>
+            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
+        </value>
+    </customProperties>
+    <environments>Default</environments>
+    <formulas>
+        <description>Is the decision table to be refreshed incrementally?</description>
+        <name>IsRefreshIncremental</name>
+        <dataType>Boolean</dataType>
+        <expression>IF({!Radio_TypeOfRefresh} = &apos;Incremental_Refresh&apos;, true, false)</expression>
+    </formulas>
+    <formulas>
+        <name>LastIncrementalRefreshedAtTextFormula</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    NOT(ISNULL({!Get_Decision_Table_Records.LastIncrementalSyncDate})), 
+    &apos;Decision Table Last Incremental Refreshed At: &apos; + TEXT({!Get_Decision_Table_Records.LastIncrementalSyncDate}), 
+    &apos;&apos;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>RefreshStatusFormatted</name>
+        <dataType>String</dataType>
+        <expression>CASE(
+    TEXT({!Get_Decision_Table_Records.RefreshStatus}),
+    &apos;Completed&apos;, &apos;&lt;span style=&quot;color: green;&quot;&gt;&apos; &amp; TEXT({!Get_Decision_Table_Records.RefreshStatus}) &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;Failed&apos;, &apos;&lt;span style=&quot;color: red;&quot;&gt;&apos; &amp; TEXT({!Get_Decision_Table_Records.RefreshStatus}) &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;InProgress&apos;, &apos;&lt;span style=&quot;color: yellow;&quot;&gt;&apos; &amp; TEXT({!Get_Decision_Table_Records.RefreshStatus}) &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;Initiated&apos;, &apos;&lt;span style=&quot;color: yellow;&quot;&gt;&apos; &amp; TEXT({!Get_Decision_Table_Records.RefreshStatus}) &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;&apos;
+)</expression>
+    </formulas>
+    <interviewLabel>Decision Table Refresh Flow {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Decision Table Refresh Flow</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordLookups>
+        <description>Get Decision Table records</description>
+        <name>Get_Decision_Table_Records</name>
+        <label>Get Decision Table Records</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>SCREEN_ShowDecisionTableDetails</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>DecisionTableDeveloperName</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>DecisionTable</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <screens>
+        <description>Showing Decision Table Details</description>
+        <name>SCREEN_ShowDecisionTableDetails</name>
+        <label>Show Decision Table Details</label>
+        <locationX>176</locationX>
+        <locationY>242</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>RefreshDecisionTableAction</targetReference>
+        </connector>
+        <fields>
+            <name>DecisionTableDetailsDisplay</name>
+            <fieldText>&lt;p&gt;{!DecisionTableDetailsTextTemplate}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Radio_TypeOfRefresh</name>
+            <choiceReferences>Incremental_Refresh</choiceReferences>
+            <choiceReferences>Full_Refresh</choiceReferences>
+            <dataType>String</dataType>
+            <fieldText>Select Type of Refresh</fieldText>
+            <fieldType>RadioButtons</fieldType>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+        </fields>
+        <nextOrFinishButtonLabel>Refresh Table</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+        <stageReference>
+            <elementReference>ShowDetails</elementReference>
+        </stageReference>
+    </screens>
+    <stages>
+        <name>ShowDetails</name>
+        <isActive>false</isActive>
+        <label>Show Details</label>
+        <stageOrder>2</stageOrder>
+    </stages>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Decision_Table_Records</targetReference>
+        </connector>
+    </start>
+    <status>Draft</status>
+    <textTemplates>
+        <description>Details of the Decision Table</description>
+        <name>DecisionTableDetailsTextTemplate</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text
+		>&lt;p&gt;Decision Table Name: &lt;strong&gt;{!Get_Decision_Table_Records.SetupName}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Decision Table Refresh Status: &lt;strong&gt;{!RefreshStatusFormatted} &lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Decision Table Last Refreshed At: &lt;strong&gt;{!Get_Decision_Table_Records.LastSyncDate}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!LastIncrementalRefreshedAtTextFormula}&lt;/p&gt;</text>
+    </textTemplates>
+    <variables>
+        <name>DecisionTableDeveloperName</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue />
+        </value>
+    </variables>
+</Flow>
