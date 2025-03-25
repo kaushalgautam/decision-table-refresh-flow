@@ -6,7 +6,24 @@ A Screen Flow that enables on-demand decision table refreshes directly from your
 
 This screen flow provides a convenient way to refresh Salesforce decision tables without navigating through Setup menus. The flow accepts a decision table name as input and offers options for both incremental and full refresh operations, while displaying key metrics about the decision table.
 
-![Decision Table Refresh Flow Screenshot - Main Screen](INSERT_SCREENSHOT_HERE)
+![Decision Table Refresh Flow Screenshot - Main Screen](https://github.com/user-attachments/assets/fdb07477-abbd-4627-8b30-d681cdc4ab66)
+
+Pin #1 - Shows full refreshes done in the last hour (Incremental refreshes do not count)
+
+Pin #2 - You can select the type of refresh you want to do before proceeding. 
+
+![Decision Table Refresh Flow Screenshot - Waiting Screen](https://github.com/user-attachments/assets/90ec59e3-b4bd-4f3a-a8d9-cedbfabcc38b)
+
+Once you click on Refresh Table, you are taken to this intermediate screen. You can press the Check Refresh Status button in a second or two (so that we can fetch the updated data) to proceed to the next screen.
+
+![Decision Table Refresh Flow Screenshot - Result Screen](https://github.com/user-attachments/assets/726cdc16-4eb5-446b-b34f-f03ffc2a043a)
+
+This screen shows you the status of your refresh. 
+
+Pin #1 - Shows refresh status of the table
+
+Pin #2 - Tip: If the status is still In Progress (it will be, because it takes some time), and you want to refresh it, you can do so. Just click on Previous, go to the waiting screen, and then click the Check Refresh Status button again to refresh the data. 
+
 
 ## Features
 
@@ -40,7 +57,7 @@ Security Consideration: The flow runs in System Mode without sharing, so ensure 
 
 ## Contact
 
-For questions, issues, or enhancement requests, please open an issue and I'll take a look.
+For questions, issues, or enhancement requests, please open an issue, and I'll take a look.
 
 ## License
 
