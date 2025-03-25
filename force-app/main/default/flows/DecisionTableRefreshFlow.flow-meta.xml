@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionCalls>
-        <name>RefreshDecisionTableAction</name>
+        <name>Action_RefreshDecisionTable</name>
         <label>Refresh Decision Table Action</label>
         <locationX>176</locationX>
-        <locationY>350</locationY>
+        <locationY>566</locationY>
         <actionName>refreshDecisionTable</actionName>
         <actionType>refreshDecisionTable</actionType>
+        <connector>
+            <targetReference>S_Wait_Screen</targetReference>
+        </connector>
         <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>DecisionTableApiName</name>
@@ -17,7 +20,7 @@
         <inputParameters>
             <name>isDecisionTableIncremental</name>
             <value>
-                <elementReference>IsRefreshIncremental</elementReference>
+                <elementReference>form_IsRefreshIncremental</elementReference>
             </value>
         </inputParameters>
         <nameSegment>refreshDecisionTable</nameSegment>
@@ -26,8 +29,24 @@
     </actionCalls>
     <apiVersion>63.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Set_CountOfDecisionTablesRefreshed</name>
+        <label>Set Number of Refreshed Tables in Last Hour</label>
+        <locationX>176</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>var_NumberOfDecisionTablesRefreshedInLastHour</assignToReference>
+            <operator>AssignCount</operator>
+            <value>
+                <elementReference>Get_All_Decision_Tables_Refreshed_Last_Hour</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>SCREEN_ShowDecisionTableDetails</targetReference>
+        </connector>
+    </assignments>
     <choices>
-        <name>Full_Refresh</name>
+        <name>RefreshChoice_Full_Refresh</name>
         <choiceText>Full Refresh</choiceText>
         <dataType>String</dataType>
         <value>
@@ -35,46 +54,49 @@
         </value>
     </choices>
     <choices>
-        <name>Incremental_Refresh</name>
+        <name>RefreshChoice_Incremental_Refresh</name>
         <choiceText>Incremental Refresh</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Incremental Refresh</stringValue>
         </value>
     </choices>
-    <customProperties>
-        <name>ScreenProgressIndicator</name>
-        <value>
-            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
-        </value>
-    </customProperties>
     <environments>Default</environments>
     <formulas>
         <description>Is the decision table to be refreshed incrementally?</description>
-        <name>IsRefreshIncremental</name>
+        <name>form_IsRefreshIncremental</name>
         <dataType>Boolean</dataType>
-        <expression>IF({!Radio_TypeOfRefresh} = &apos;Incremental_Refresh&apos;, true, false)</expression>
+        <expression>IF({!Input_Radio_TypeOfRefresh} = &apos;Incremental Refresh&apos;, true, false)</expression>
     </formulas>
     <formulas>
-        <name>LastIncrementalRefreshedAtTextFormula</name>
+        <description>Refresh status after Refresh action is performed</description>
+        <name>form_NewRefreshStatusFormatted</name>
         <dataType>String</dataType>
-        <expression>IF(
-    NOT(ISNULL({!Get_Decision_Table_Records.LastIncrementalSyncDate})), 
-    &apos;Decision Table Last Incremental Refreshed At: &apos; + TEXT({!Get_Decision_Table_Records.LastIncrementalSyncDate}), 
+        <expression>CASE(
+    TEXT({!Get_Decision_Table_Records_After_Action.RefreshStatus}),
+    &apos;Completed&apos;, &apos;&lt;span style=&quot;color: green;&quot;&gt;&apos; &amp; &apos;Completed&apos; &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;Failed&apos;, &apos;&lt;span style=&quot;color: red;&quot;&gt;&apos; &amp; &apos;Failed&apos; &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;InProgress&apos;, &apos;&lt;span style=&quot;color: #1E90FF;&quot;&gt;&apos; &amp; &apos;In Progress&apos; &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;Initiated&apos;, &apos;&lt;span style=&quot;color: #1E90FF;&quot;&gt;&apos; &amp; &apos;Initiated&apos; &amp; &apos;&lt;/span&gt;&apos;,
     &apos;&apos;
 )</expression>
     </formulas>
     <formulas>
-        <name>RefreshStatusFormatted</name>
+        <name>form_RefreshStatusFormatted</name>
         <dataType>String</dataType>
         <expression>CASE(
     TEXT({!Get_Decision_Table_Records.RefreshStatus}),
-    &apos;Completed&apos;, &apos;&lt;span style=&quot;color: green;&quot;&gt;&apos; &amp; TEXT({!Get_Decision_Table_Records.RefreshStatus}) &amp; &apos;&lt;/span&gt;&apos;,
-    &apos;Failed&apos;, &apos;&lt;span style=&quot;color: red;&quot;&gt;&apos; &amp; TEXT({!Get_Decision_Table_Records.RefreshStatus}) &amp; &apos;&lt;/span&gt;&apos;,
-    &apos;InProgress&apos;, &apos;&lt;span style=&quot;color: yellow;&quot;&gt;&apos; &amp; TEXT({!Get_Decision_Table_Records.RefreshStatus}) &amp; &apos;&lt;/span&gt;&apos;,
-    &apos;Initiated&apos;, &apos;&lt;span style=&quot;color: yellow;&quot;&gt;&apos; &amp; TEXT({!Get_Decision_Table_Records.RefreshStatus}) &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;Completed&apos;, &apos;&lt;span style=&quot;color: green;&quot;&gt;&apos; &amp; &apos;Completed&apos; &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;Failed&apos;, &apos;&lt;span style=&quot;color: red;&quot;&gt;&apos; &amp; &apos;Failed&apos; &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;InProgress&apos;, &apos;&lt;span style=&quot;color: #1E90FF;&quot;&gt;&apos; &amp; &apos;In Progress&apos; &amp; &apos;&lt;/span&gt;&apos;,
+    &apos;Initiated&apos;, &apos;&lt;span style=&quot;color: #1E90FF;&quot;&gt;&apos; &amp; &apos;Initiated&apos; &amp; &apos;&lt;/span&gt;&apos;,
     &apos;&apos;
 )</expression>
+    </formulas>
+    <formulas>
+        <name>form_TimestampOneHourAgo</name>
+        <dataType>DateTime</dataType>
+        <expression>NOW() - (1/24)</expression>
     </formulas>
     <interviewLabel>Decision Table Refresh Flow {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Decision Table Refresh Flow</label>
@@ -98,6 +120,27 @@
     </processMetadataValues>
     <processType>Flow</processType>
     <recordLookups>
+        <name>Get_All_Decision_Tables_Refreshed_Last_Hour</name>
+        <label>Get All Decision Tables Refreshed within Last Hour</label>
+        <locationX>176</locationX>
+        <locationY>242</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Set_CountOfDecisionTablesRefreshed</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>LastSyncDate</field>
+            <operator>GreaterThanOrEqualTo</operator>
+            <value>
+                <elementReference>form_TimestampOneHourAgo</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>DecisionTable</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
         <description>Get Decision Table records</description>
         <name>Get_Decision_Table_Records</name>
         <label>Get Decision Table Records</label>
@@ -105,7 +148,29 @@
         <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>SCREEN_ShowDecisionTableDetails</targetReference>
+            <targetReference>Get_All_Decision_Tables_Refreshed_Last_Hour</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>DeveloperName</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>DecisionTableDeveloperName</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>DecisionTable</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Get Decision Table records after refreshing</description>
+        <name>Get_Decision_Table_Records_After_Action</name>
+        <label>Get Decision Table Records After Action</label>
+        <locationX>176</locationX>
+        <locationY>782</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Show_Refreshed_Decision_Table_Details</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -121,27 +186,55 @@
     </recordLookups>
     <runInMode>SystemModeWithoutSharing</runInMode>
     <screens>
-        <description>Showing Decision Table Details</description>
-        <name>SCREEN_ShowDecisionTableDetails</name>
-        <label>Show Decision Table Details</label>
+        <name>S_Wait_Screen</name>
+        <label>Wait Screen</label>
         <locationX>176</locationX>
-        <locationY>242</locationY>
+        <locationY>674</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>false</allowPause>
         <connector>
-            <targetReference>RefreshDecisionTableAction</targetReference>
+            <targetReference>Get_Decision_Table_Records_After_Action</targetReference>
         </connector>
         <fields>
-            <name>DecisionTableDetailsDisplay</name>
+            <name>S_WaitMessage</name>
+            <fieldText
+			>&lt;p&gt;&lt;strong&gt;Please wait a few seconds to fire the action, then click Check Refresh Status...&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <nextOrFinishButtonLabel>Check Refresh Status</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <description>Showing Decision Table Details</description>
+        <name>SCREEN_ShowDecisionTableDetails</name>
+        <label>Show Decision Table Details</label>
+        <locationX>176</locationX>
+        <locationY>458</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Action_RefreshDecisionTable</targetReference>
+        </connector>
+        <fields>
+            <name>S_DecisionTableDetailsDisplay</name>
             <fieldText>&lt;p&gt;{!DecisionTableDetailsTextTemplate}&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <fields>
-            <name>Radio_TypeOfRefresh</name>
-            <choiceReferences>Incremental_Refresh</choiceReferences>
-            <choiceReferences>Full_Refresh</choiceReferences>
+            <name>S_RefreshCountDisplayText</name>
+            <fieldText
+			>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); color: rgb(68, 68, 68);&quot;&gt;Full refreshes done in the last hour: &lt;/span&gt;&lt;strong style=&quot;background-color: rgb(255, 255, 255); color: rgb(255, 0, 0);&quot;&gt;{!var_NumberOfDecisionTablesRefreshedInLastHour}&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Input_Radio_TypeOfRefresh</name>
+            <choiceReferences>RefreshChoice_Incremental_Refresh</choiceReferences>
+            <choiceReferences>RefreshChoice_Full_Refresh</choiceReferences>
             <dataType>String</dataType>
+            <defaultSelectedChoiceReference>RefreshChoice_Incremental_Refresh</defaultSelectedChoiceReference>
             <fieldText>Select Type of Refresh</fieldText>
             <fieldType>RadioButtons</fieldType>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
@@ -150,16 +243,24 @@
         <nextOrFinishButtonLabel>Refresh Table</nextOrFinishButtonLabel>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
-        <stageReference>
-            <elementReference>ShowDetails</elementReference>
-        </stageReference>
     </screens>
-    <stages>
-        <name>ShowDetails</name>
-        <isActive>false</isActive>
-        <label>Show Details</label>
-        <stageOrder>2</stageOrder>
-    </stages>
+    <screens>
+        <description>Showing Decision Table Details after refreshing</description>
+        <name>Show_Refreshed_Decision_Table_Details</name>
+        <label>Show Refreshed Decision Table Details</label>
+        <locationX>176</locationX>
+        <locationY>890</locationY>
+        <allowBack>true</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>S_DecisionTableDetailsDisplayRefreshed</name>
+            <fieldText>&lt;p&gt;{!DecisionTableDetailsTextTemplateAfterRefresh}&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
     <start>
         <locationX>50</locationX>
         <locationY>0</locationY>
@@ -167,13 +268,19 @@
             <targetReference>Get_Decision_Table_Records</targetReference>
         </connector>
     </start>
-    <status>Draft</status>
+    <status>Active</status>
     <textTemplates>
         <description>Details of the Decision Table</description>
         <name>DecisionTableDetailsTextTemplate</name>
         <isViewedAsPlainText>false</isViewedAsPlainText>
         <text
-		>&lt;p&gt;Decision Table Name: &lt;strong&gt;{!Get_Decision_Table_Records.SetupName}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Decision Table Refresh Status: &lt;strong&gt;{!RefreshStatusFormatted} &lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Decision Table Last Refreshed At: &lt;strong&gt;{!Get_Decision_Table_Records.LastSyncDate}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!LastIncrementalRefreshedAtTextFormula}&lt;/p&gt;</text>
+		>&lt;p&gt;Table Name: &lt;strong&gt;{!Get_Decision_Table_Records.SetupName}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Refresh Status: &lt;strong&gt;{!form_RefreshStatusFormatted} &lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Last Refreshed At: &lt;strong&gt;{!Get_Decision_Table_Records.LastSyncDate}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot;color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);&quot;&gt;Last incremental Refresh Date: &lt;/span&gt;&lt;strong style=&quot;color: rgb(68, 68, 68); background-color: rgb(255, 255, 255);&quot;&gt;{!Get_Decision_Table_Records.LastIncrementalSyncDate}&lt;/strong&gt;&lt;/p&gt;</text>
+    </textTemplates>
+    <textTemplates>
+        <name>DecisionTableDetailsTextTemplateAfterRefresh</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
+        <text
+		>&lt;p&gt;Table Name: &lt;strong&gt;{!Get_Decision_Table_Records_After_Action.SetupName}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Refresh Status: &lt;strong&gt;{!form_NewRefreshStatusFormatted}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Last Refreshed At: &lt;strong&gt;{!Get_Decision_Table_Records_After_Action.LastSyncDate}&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Last incremental Refresh Date: &lt;strong&gt;{!Get_Decision_Table_Records_After_Action.LastIncrementalSyncDate}&lt;/strong&gt;&lt;/p&gt;</text>
     </textTemplates>
     <variables>
         <name>DecisionTableDeveloperName</name>
@@ -183,6 +290,18 @@
         <isOutput>false</isOutput>
         <value>
             <stringValue />
+        </value>
+    </variables>
+    <variables>
+        <description>Calculate and store the number of DTs refreshed in the last hour in here.</description>
+        <name>var_NumberOfDecisionTablesRefreshedInLastHour</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
         </value>
     </variables>
 </Flow>
